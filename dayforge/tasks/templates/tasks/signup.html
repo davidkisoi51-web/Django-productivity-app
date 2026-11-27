@@ -1,0 +1,26 @@
+{% extends "tasks/base.html" %}
+{% block title %}Create account — DayForge{% endblock %}
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <span class="brand-mark large">D</span>
+        <p class="section-kicker">Start your workspace</p>
+        <h1>Build momentum that lasts.</h1>
+        <form method="post" class="task-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {{ form.username.errors }}
+            <label for="{{ form.password1.id_for_label }}">Password</label>
+            {{ form.password1 }}
+            {{ form.password1.errors }}
+            <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+            {{ form.password2 }}
+            {{ form.password2.errors }}
+            <button class="primary-button full" type="submit">Create account</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+</section>
+{% endblock %}

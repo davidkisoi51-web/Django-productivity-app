@@ -1,0 +1,21 @@
+{% extends "tasks/base.html" %}
+{% block title %}Log in — DayForge{% endblock %}
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <span class="brand-mark large">D</span>
+        <p class="section-kicker">Welcome back</p>
+        <h1>Continue forging your day.</h1>
+        <form method="post" class="task-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            <button class="primary-button full" type="submit">Log in</button>
+        </form>
+        <p class="auth-switch">New to DayForge? <a href="{% url 'signup' %}">Create an account</a></p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#17231d">
+    <title>{% block title %}DayForge{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{% url 'task_list' %}" aria-label="DayForge home">
+            <span class="brand-mark" aria-hidden="true">D</span>
+            <span>DayForge</span>
+        </a>
+        <nav class="topnav" aria-label="Primary navigation">
+            {% if user.is_authenticated %}
+                <span class="user-chip">{{ user.username|title }}</span>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="nav-button" type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a class="nav-button" href="{% url 'login' %}">Log in</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div class="toast-stack" aria-live="polite">
+            {% for message in messages %}
+                <div class="toast {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="app-shell">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends "tasks/base.html" %}
+{% block title %}My Tasks — DayForge{% endblock %}
+
+{% block content %}
+<section class="dashboard-heading">
+    <div>
+        <p class="eyebrow">{{ today|date:"l, F j" }}</p>
+        <h1>Good day, {{ user.username|title }}.</h1>
+        <p class="heading-copy">Shape the day, one clear next step at a time.</p>
+    </div>
+    <a class="primary-button" href="{% url 'task_create' %}">
+        <span aria-hidden="true">＋</span> New task
+    </a>
+</section>
+
+<section class="stats-grid" aria-label="Task summary">
+    <article class="stat-card">
+        <span class="stat-icon ink">A</span>
+        <div><strong>{{ active }}</strong><span>Active</span></div>
+    </article>
+    <article class="stat-card">
+        <span class="stat-icon green">✓</span>
+        <div><strong>{{ completed }}</strong><span>Completed</span></div>
+    </article>
+    <article class="stat-card">
+        <span class="stat-icon amber">!</span>
+        <div><strong>{{ overdue }}</strong><span>Overdue</span></div>
+    </article>
+    <article class="progress-card">
+        <div class="progress-label"><span>Daily progress</span><strong>{{ completion_percent }}%</strong></div>
+        <div class="progress-track"><span style="width: {{ completion_percent }}%"></span></div>
+    </article>
+</section>
+
+<section class="workspace-grid">
+    <aside class="quick-add-card">
+        <p class="section-kicker">Quick add</p>
+        <h2>Capture a task</h2>
+        <form method="post" action="{% url 'task_create' %}" class="task-form">
+            {% csrf_token %}
+            <label for="{{ create_form.title.id_for_label }}">Task title</label>
+            {{ create_form.title }}
+            <label for="{{ create_form.description.id_for_label }}">Notes <span>Optional</span></label>
+            {{ create_form.description }}
+            <div class="field-row">
+                <div>
+                    <label for="{{ create_form.priority.id_for_label }}">Priority</label>
+                    {{ create_form.priority }}
+                </div>
+                <div>
+                    <label for="{{ create_form.due_date.id_for_label }}">Due date</label>
+                    {{ create_form.due_date }}
+                </div>
+            </div>
+            <button class="primary-button full" type="submit">Add to my day</button>
+        </form>
+    </aside>
+
+    <div class="task-board">
+        <div class="board-heading">
+            <div>
+                <p class="section-kicker">Workspace</p>
+                <h2>My tasks <span>{{ total }}</span></h2>
+            </div>
+        </div>
+
+        <form class="filters" method="get">
+            <label class="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" name="q" value="{{ search }}" placeholder="Search tasks">
+            </label>
+            <select name="status" aria-label="Filter by status">
+                <option value="all" {% if status == "all" %}selected{% endif %}>All statuses</option>
+                <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+                <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
+            </select>
+            <select name="priority" aria-label="Filter by priority">
+                <option value="all" {% if priority == "all" %}selected{% endif %}>Any priority</option>
+                <option value="high" {% if priority == "high" %}selected{% endif %}>High priority</option>
+                <option value="medium" {% if priority == "medium" %}selected{% endif %}>Medium priority</option>
+                <option value="low" {% if priority == "low" %}selected{% endif %}>Low priority</option>
+            </select>
+            <select name="sort" aria-label="Sort tasks">
+                <option value="smart" {% if sort == "smart" %}selected{% endif %}>Smart order</option>
+                <option value="due" {% if sort == "due" %}selected{% endif %}>Due date</option>
+                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                <option value="title" {% if sort == "title" %}selected{% endif %}>Title</option>
+            </select>
+            <button class="filter-button" type="submit">Apply</button>
+        </form>
+
+        <div class="task-list">
+            {% for task in tasks %}
+                <article class="task-card {% if task.completed %}is-completed{% endif %}">
+                    <form method="post" action="{% url 'task_toggle' task.pk %}">
+                        {% csrf_token %}
+                        <button class="task-check" type="submit" aria-label="{% if task.completed %}Reopen{% else %}Complete{% endif %} {{ task.title }}">
+                            {% if task.completed %}✓{% endif %}
+                        </button>
+                    </form>
+                    <div class="task-body">
+                        <div class="task-title-row">
+                            <h3>{{ task.title }}</h3>
+                            <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+                        </div>
+                        {% if task.description %}
+                            <p>{{ task.description|truncatechars:120 }}</p>
+                        {% endif %}
+                        {% if task.due_date %}
+                            <time class="due-date {% if task.due_date < today and not task.completed %}is-overdue{% endif %}" datetime="{{ task.due_date|date:'Y-m-d' }}">
+                                <span aria-hidden="true">◷</span> Due {{ task.due_date|date:"M j" }}
+                            </time>
+                        {% endif %}
+                    </div>
+                    <div class="task-actions">
+                        <a href="{% url 'task_edit' task.pk %}" aria-label="Edit {{ task.title }}">Edit</a>
+                        <form method="post" action="{% url 'task_delete' task.pk %}" onsubmit="return confirm('Delete this task?');">
+                            {% csrf_token %}
+                            <button type="submit" aria-label="Delete {{ task.title }}">Delete</button>
+                        </form>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <div class="empty-mark">✦</div>
+                    <h3>No tasks found</h3>
+                    <p>{% if search or status != "all" or priority != "all" %}Try clearing or changing your filters.{% else %}Add your first task and begin shaping the day.{% endif %}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

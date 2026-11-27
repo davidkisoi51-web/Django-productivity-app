@@ -1,0 +1,35 @@
+{% extends "tasks/base.html" %}
+{% block title %}{{ mode }} Task — DayForge{% endblock %}
+{% block content %}
+<section class="form-page">
+    <a class="back-link" href="{% url 'task_list' %}">← Back to tasks</a>
+    <div class="form-card">
+        <p class="section-kicker">{{ mode }} task</p>
+        <h1>{% if mode == "Edit" %}Refine the details{% else %}Create a next step{% endif %}</h1>
+        <form method="post" class="task-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label for="{{ form.title.id_for_label }}">Task title</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+            <label for="{{ form.description.id_for_label }}">Notes <span>Optional</span></label>
+            {{ form.description }}
+            {{ form.description.errors }}
+            <div class="field-row">
+                <div>
+                    <label for="{{ form.priority.id_for_label }}">Priority</label>
+                    {{ form.priority }}
+                </div>
+                <div>
+                    <label for="{{ form.due_date.id_for_label }}">Due date</label>
+                    {{ form.due_date }}
+                </div>
+            </div>
+            <div class="form-actions">
+                <a class="secondary-button" href="{% url 'task_list' %}">Cancel</a>
+                <button class="primary-button" type="submit">{{ mode }} task</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
